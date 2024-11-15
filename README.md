@@ -3,6 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Filter System</title>
+</head>
+<body>
+    <h2>Dynamic Filter System with Dependency</h2>
+
+    <!-- Filters -->
+    <label for="filter1">ID:</label>
+    <input type="text" id="filter1" onkeyup="handleFilterChange(1)" placeholder="Enter ID"><br><br>
+
+    <label for="filter2">Name:</label>
+    <input type="text" id="filter2" onkeyup="handleFilterChange(2)" placeholder="Enter Name"><br><br>
+
+    <label for="filter3">Category:</label>
+    <input type="text" id="filter3" onkeyup="handleFilterChange(3)" placeholder="Enter Category"><br><br>
+
+    <label for="filter4">Location:</label>
+    <input type="text" id="filter4" onkeyup="handleFilterChange(4)" placeholder="Enter Location"><br><br>
+
+    <label for="filter5">Status:</label>
+    <input type="text" id="filter5" onkeyup="handleFilterChange(5)" placeholder="Enter Status"><br><br>
+
+    <!-- Results -->
+    <h3>Results:</h3>
+    <div id="results"></div>
+
+    <script>
+        // Store current filter values to track selected filters
+        const filterValues = {
+            filter1: "",
+            filter2: "",
+            filter3: "",
+            filter4: "",
+            filter5: ""
+        };
+
+        // Function to fetch filter options and results from the API
+        async function fetchOptions(selectedFilter) {
+            try {
+                // Replace with actual API endpoint
+                const response = await fetch(`https://yourapi.com/filters?${new URLSearchParams(filterValues)}`);
+                const data = await response.json();
+
+                // Assuming response contains options for each filter and results
+                return data; 
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return {};
+            }
+        }
+
+        async function handleFilterChange(filterNumber) {
+            // Update filter values based on current inputs
+            const filterId = `filter${filterNumber}`;
+            filterValues[filterId] = document.getElementById(filterId).value;
+
+            // Fetch updated options based on current filter values
+            const data = await fetchOptions(filterNumber);
+
+            // Update each filter's placeholder with new options
+            updateFilterPlaceholders(data.options, filterNumber);
+
+            // Display the filtered results
+            displayResults(data.results);
+        }
+
+        // Update placeholders to show available options for each filter
+        function updateFilterPlaceholders(options, changedFilter) {
+            if (changedFilter !== 1) updatePlaceholder("filter1", options.filter1);
+            if (changedFilter !== 2) updatePlaceholder("filter2", options.filter2);
+            if (changedFilter !== 3) updatePlaceholder("filter3", options.filter3);
+            if (changedFilter !== 4) updatePlaceholder("filter4", options.filter4);
+            if (changedFilter !== 5) updatePlaceholder("filter5", options.filter5);
+        }
+
+        // Helper function to set placeholder text for each filter input
+        function updatePlaceholder(filterId, options) {
+            const filter = document.getElementById(filterId);
+            filter.placeholder = options && options.length > 0 ? `Options: ${options.join(", ")}` : "No options available";
+        }
+
+        // Display filtered results
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = JSON.stringify(results, null, 2);
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dependent Filters</title>
 </head>
 <body>
