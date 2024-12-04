@@ -1,204 +1,177 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Filter System</title>
-</head>
-<body>
-    <h2>Dynamic Filter System with Dependency</h2>
+![image](https://github.com/user-attachments/assets/6f3f82b0-35f7-4e93-9194-cf70a2aa589a)
 
-    <!-- Filters -->
-    <label for="filter1">ID:</label>
-    <input type="text" id="filter1" onkeyup="handleFilterChange(1)" placeholder="Enter ID"><br><br>
-
-    <label for="filter2">Name:</label>
-    <input type="text" id="filter2" onkeyup="handleFilterChange(2)" placeholder="Enter Name"><br><br>
-
-    <label for="filter3">Category:</label>
-    <input type="text" id="filter3" onkeyup="handleFilterChange(3)" placeholder="Enter Category"><br><br>
-
-    <label for="filter4">Location:</label>
-    <input type="text" id="filter4" onkeyup="handleFilterChange(4)" placeholder="Enter Location"><br><br>
-
-    <label for="filter5">Status:</label>
-    <input type="text" id="filter5" onkeyup="handleFilterChange(5)" placeholder="Enter Status"><br><br>
-
-    <!-- Results -->
-    <h3>Results:</h3>
-    <div id="results"></div>
-
-    <script>
-        // Store current filter values to track selected filters
-        const filterValues = {
-            filter1: "",
-            filter2: "",
-            filter3: "",
-            filter4: "",
-            filter5: ""
-        };
-
-        // Function to fetch filter options and results from the API
-        async function fetchOptions(selectedFilter) {
-            try {
-                // Replace with actual API endpoint
-                const response = await fetch(`https://yourapi.com/filters?${new URLSearchParams(filterValues)}`);
-                const data = await response.json();
-
-                // Assuming response contains options for each filter and results
-                return data; 
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                return {};
-            }
-        }
-
-        async function handleFilterChange(filterNumber) {
-            // Update filter values based on current inputs
-            const filterId = `filter${filterNumber}`;
-            filterValues[filterId] = document.getElementById(filterId).value;
-
-            // Fetch updated options based on current filter values
-            const data = await fetchOptions(filterNumber);
-
-            // Update each filter's placeholder with new options
-            updateFilterPlaceholders(data.options, filterNumber);
-
-            // Display the filtered results
-            displayResults(data.results);
-        }
-
-        // Update placeholders to show available options for each filter
-        function updateFilterPlaceholders(options, changedFilter) {
-            if (changedFilter !== 1) updatePlaceholder("filter1", options.filter1);
-            if (changedFilter !== 2) updatePlaceholder("filter2", options.filter2);
-            if (changedFilter !== 3) updatePlaceholder("filter3", options.filter3);
-            if (changedFilter !== 4) updatePlaceholder("filter4", options.filter4);
-            if (changedFilter !== 5) updatePlaceholder("filter5", options.filter5);
-        }
-
-        // Helper function to set placeholder text for each filter input
-        function updatePlaceholder(filterId, options) {
-            const filter = document.getElementById(filterId);
-            filter.placeholder = options && options.length > 0 ? `Options: ${options.join(", ")}` : "No options available";
-        }
-
-        // Display filtered results
-        function displayResults(results) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = JSON.stringify(results, null, 2);
-        }
-    </script>
-</body>
-</html>
+ 
+ <details open>
+                            <summary><strong>会社ID</strong></summary>
+                            <select id="companyId" onchange="filterData()" class="form-control">
+                                <option value="">すべて</option>
+                            </select>
+                                                    </details>
+                                                    <details open>
+                                                        <summary><strong>協定書締結日</strong></summary>
+                                                        <select id="agreementDate" onchange="filterData()" class="form-control">
+                                                            <option value="">すべて</option>
+                                                        </select>
+                                                    </details>
+                                                    
+                                                    <details open>
+                                                        <summary><strong>担当支店</strong></summary>
+                                                        <select id="branch" onchange="filterData()" class="form-control">
+                                                            <option value="">すべて</option>
+                                                        </select>
+                                                    </details>
+                                                    <details open>
+                                                        <summary><strong>担当部門</strong></summary>
+                                                        <select id="department" onchange="filterData()" class="form-control">
+                                                            <option value="">すべて</option>
+                                                        </select>
+                                                    </details>
+                                                     <details open>
+                            <summary><strong>会社名</strong></summary>
+                            <select id="companyName" onchange="filterData()" class="form-control">
+                                <option value="">すべて</option>
+                            </select>
+                        </details>
 
 
+function populateFilters() {
+    const companyIdFilter = document.getElementById('companyId');
+    const agreementDateFilter = document.getElementById('agreementDate');
+    const branchFilter = document.getElementById('branch');
+    const departmentFilter = document.getElementById('department');
+    const companyNameFilter = document.getElementById('companyName');
+
+    const companyId = [...new Set(filterDataArray.map(item => item.company_id))];
+    const agreementDate = [...new Set(filterDataArray.map(item => item.sign_date))];
+    const branches = [...new Set(filterDataArray.map(item => item.tantou_shiten))];
+    const departments = [...new Set(filterDataArray.map(item => item.tantou_bumon))];
+    const companyNames = [...new Set(filterDataArray.map(item => item.company_name))];
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dependent Filters</title>
-</head>
-<body>
-    <h2>Dynamic Dependent Filters</h2>
+    companyId.sort((a, b) => a - b).forEach(id => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = id;
+        companyIdFilter.appendChild(option);
+    });
 
-    <!-- Filters -->
-    <label for="filter1">ID:</label>
-    <input type="text" id="filter1" onkeyup="updateFilters(1)" placeholder="Enter ID"><br><br>
+    agreementDate.sort((a, b) => a - b).forEach(date => {
+        const option = document.createElement('option');
+        option.value = date;
+        option.textContent = date;
+        agreementDateFilter.appendChild(option);
+    });
 
-    <label for="filter2">Name:</label>
-    <input type="text" id="filter2" onkeyup="updateFilters(2)" placeholder="Enter Name"><br><br>
+    branches.sort((a, b) => a.localeCompare(b)).forEach(branch => {
+        const option = document.createElement('option');
+        option.value = branch;
+        option.textContent = branch;
+        branchFilter.appendChild(option);
+    });
 
-    <label for="filter3">Category:</label>
-    <input type="text" id="filter3" onkeyup="updateFilters(3)" placeholder="Enter Category"><br><br>
+    departments.sort((a, b) => a.localeCompare(b)).forEach(department => {
+        const option = document.createElement('option');
+        option.value = department;
+        option.textContent = department;
+        departmentFilter.appendChild(option);
+    });
 
-    <label for="filter4">Location:</label>
-    <input type="text" id="filter4" onkeyup="updateFilters(4)" placeholder="Enter Location"><br><br>
+    companyNames.sort((a, b) => a.localeCompare(b)).forEach(companyName => {
+        const option = document.createElement('option');
+        option.value = companyName;
+        option.textContent = companyName;
+        companyNameFilter.appendChild(option);
+    });
 
-    <label for="filter5">Status:</label>
-    <input type="text" id="filter5" onkeyup="updateFilters(5)" placeholder="Enter Status"><br><br>
+}
 
-    <!-- Results -->
-    <h3>Results:</h3>
-    <div id="results"></div>
+export function filterData() {
+    const companyIdFilter = document.getElementById('companyId').value;
+    const agreementDateFilter = document.getElementById('agreementDate').value;
+    const branchFilter = document.getElementById('branch').value;
+    const departmentFilter = document.getElementById('department').value;
+    const companyNameFilter = document.getElementById('companyName').value;
 
-    <script>
-        // Fetches options for other filters based on current filter values
-        async function fetchOptions(filterValues) {
-            try {
-                // Replace with actual API endpoint
-                const response = await fetch(`https://yourapi.com/filters?${new URLSearchParams(filterValues)}`);
-                const data = await response.json();
+    const filteredData = filterDataArray.filter(item => {
+        return (companyIdFilter === '' || item.company_id === Number(companyIdFilter)) &&
+            (agreementDateFilter === '' || item.sign_date == agreementDateFilter) &&
+            (branchFilter === '' || item.tantou_shiten === branchFilter) &&
+            (departmentFilter === '' || item.tantou_bumon == departmentFilter) &&
+            (companyNameFilter === '' || item.company_name == companyNameFilter);
+    });
 
-                return data;  // assuming the API response has options for each filter
-            } catch (error) {
-                console.error('Error fetching options:', error);
-                return {};
-            }
-        }
+    updateFilters(filteredData);
+    displayResults(filteredData);
+}
 
-        async function updateFilters(changedFilter) {
-            // Gather current values from all filters
-            const filterValues = {
-                filter1: document.getElementById('filter1').value,
-                filter2: document.getElementById('filter2').value,
-                filter3: document.getElementById('filter3').value,
-                filter4: document.getElementById('filter4').value,
-                filter5: document.getElementById('filter5').value
-            };
+function updateFilters(filteredData) {
+    const companyIdFilter = document.getElementById('companyId');
+    const agreementDateFilter = document.getElementById('agreementDate');
+    const branchFilter = document.getElementById('branch');
+    const departmentFilter = document.getElementById('department');
+    const companyNameFilter = document.getElementById('companyName');
 
-            // Fetch updated options for other filters based on current filter values
-            const options = await fetchOptions(filterValues);
+    const selectedCompanyId = companyIdFilter.value;
+    const selectedAgreementDate = agreementDateFilter.value;
+    const selectedBranch = branchFilter.value;
+    const selectedDepartment = departmentFilter.value;
+    const selectedcompanyName = companyNameFilter.value;
 
-            // Update each filter's placeholder with new options based on the response
-            if (changedFilter !== 1) {
-                updateFilterPlaceholder('filter1', options.filter1);
-            }
-            if (changedFilter !== 2) {
-                updateFilterPlaceholder('filter2', options.filter2);
-            }
-            if (changedFilter !== 3) {
-                updateFilterPlaceholder('filter3', options.filter3);
-            }
-            if (changedFilter !== 4) {
-                updateFilterPlaceholder('filter4', options.filter4);
-            }
-            if (changedFilter !== 5) {
-                updateFilterPlaceholder('filter5', options.filter5);
-            }
+    companyIdFilter.innerHTML = '<option value="">すべて</option>';
+    agreementDateFilter.innerHTML = '<option value="">すべて</option>';
+    branchFilter.innerHTML = '<option value="">すべて</option>';
+    departmentFilter.innerHTML = '<option value="">すべて</option>';
+    companyNameFilter.innerHTML = '<option value="">すべて</option>';
 
-            // Update the results section
-            updateResults(filterValues);
-        }
+    const companyIds = [...new Set(filteredData.map(item => item.company_id))];
+    const agreementDates = [...new Set(filteredData.map(item => item.sign_date))];
+    const branches = [...new Set(filteredData.map(item => item.tantou_shiten))];
+    const departments = [...new Set(filteredData.map(item => item.tantou_bumon))];
+    const companyNames = [...new Set(filteredData.map(item => item.company_name))];
 
-        // Update the placeholder with available options
-        function updateFilterPlaceholder(filterId, options) {
-            const filter = document.getElementById(filterId);
-            filter.placeholder = options && options.length > 0 ? `Available options: ${options.join(', ')}` : 'No options available';
-        }
+    companyIds.forEach(companyId => {
+        const option = document.createElement('option');
+        option.value = companyId;
+        option.textContent = companyId;
+        companyIdFilter.appendChild(option);
+    });
 
-        // Fetches and displays filtered results based on current filter values
-        async function updateResults(filterValues) {
-            try {
-                // Replace with actual API endpoint
-                const response = await fetch(`https://yourapi.com/results?${new URLSearchParams(filterValues)}`);
-                const data = await response.json();
+    agreementDates.forEach(agreementDate => {
+        const option = document.createElement('option');
+        option.value = agreementDate;
+        option.textContent = agreementDate;
+        agreementDateFilter.appendChild(option);
+    });
 
-                // Display results
-                const resultsDiv = document.getElementById('results');
-                resultsDiv.innerHTML = JSON.stringify(data.results, null, 2);  // assuming API response has `results` array
-            } catch (error) {
-                console.error('Error fetching results:', error);
-            }
-        }
-    </script>
-</body>
-</html>
+    branches.forEach(branch => {
+        const option = document.createElement('option');
+        option.value = branch;
+        option.textContent = branch;
+        branchFilter.appendChild(option);
+    });
 
-<!---
-winngwephyo9/winngwephyo9 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+    departments.forEach(department => {
+        const option = document.createElement('option');
+        option.value = department;
+        option.textContent = department;
+        departmentFilter.appendChild(option);
+    });
+
+    companyNames.forEach(companyName => {
+        const option = document.createElement('option');
+        option.value = companyName;
+        option.textContent = companyName;
+        companyNameFilter.appendChild(option);
+    });
+
+    if (selectedCompanyId) companyIdFilter.value = selectedCompanyId;
+    if (selectedAgreementDate) agreementDateFilter.value = selectedAgreementDate;
+    if (selectedBranch) branchFilter.value = selectedBranch;
+    if (selectedDepartment) departmentFilter.value = selectedDepartment;
+    if (selectedcompanyName) companyNameFilter.value = selectedcompanyName;
+}
+
+the above code is original code
+I want to modify this code with thw image design
+1. add search function
+2. add checkbox beside the option value reference Image
