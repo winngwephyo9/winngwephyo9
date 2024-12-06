@@ -1,205 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Legend Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        #chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
+![image](https://github.com/user-attachments/assets/c46393db-3353-4eec-9174-eb5080425d6e)
+
+
+上の凡例と、下の人数の数値は固定し、棒グラフだけがスクロールできるようにして欲しい。<br>                       .bar-chart {
+    height: auto;
+    max-height: 48vh;
+    overflow: auto;
+}<br><br>function createTotalPeopleBarChart(data) {
+    const formattedData = [
+        ['Company', '60歳以上', '40～59歳', '40歳未満', '不明']
+    ];
+    // Sort data by company_name in ascending order
+    data.sort((a, b) => a.company_name.localeCompare(b.company_name));
+
+    data.forEach(function (row) {
+        // const totalPeople = Number(row.number_of_people);
+        const totalPeople = Number(row.number_of_people_1_2_3);
+        const over60 = row.number_of_people_over_60_year_old ? Number(row.number_of_people_over_60_year_old) : 0;
+        const between40_59 = row.number_of_people_between_40_59_year_old ? Number(row.number_of_people_between_40_59_year_old) : 0;
+        const under40 = row.number_of_people_under_40_year_old ? Number(row.number_of_people_under_40_year_old) : 0;
+
+        const definedPeople = over60 + between40_59 + under40;
+        const undefinedPeople = totalPeople - definedPeople;
+        formattedData.push([
+            row.company_name,
+            over60 || 0,
+            between40_59 || 0,
+            under40 || 0,
+            undefinedPeople > 0 ? undefinedPeople : 0
+        ]);
+    });
+    return formattedData;
+}<br><br>const dataTable = google.visualization.arrayToDataTable(formattedData);
+    const numDataPoints = dataTable.getNumberOfRows();
+    const numColumns = dataTable.getNumberOfColumns();
+
+    let maxTotalPeople = 0;
+    for (let rowIndex = 0; rowIndex < numDataPoints; rowIndex++) {
+        let columnTotal = 0;
+        for (let colIndex = 1; colIndex < numColumns; colIndex++) { // Start from 1 to skip the first column (company name)
+            columnTotal += dataTable.getValue(rowIndex, colIndex);
         }
-        .chart-legend {
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        if (columnTotal > maxTotalPeople) {
+            maxTotalPeople = columnTotal;
         }
-        .legend-item {
-            margin: 5px;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-    <div id="chart-container">
-        <div class="chart-legend" id="chart-legend"></div>
-        <canvas id="myChart"></canvas>
-    </div>
-
-    <script>
-        // Example dynamic data (this could come from an API or database)
-        const dynamicData = {
-            labels: ['2010', '2020', '2030'], // X-axis labels
-            categories: [
-                { name: 'Fantasy & Sci-Fi', color: '#4a90e2', values: [12, 19, 3] },
-                { name: 'Romance', color: '#e94e77', values: [5, 15, 10] },
-                { name: 'Mystery/Crime', color: '#f5a623', values: [8, 10, 12] },
-                { name: 'General', color: '#7ed321', values: [6, 7, 8] },
-                { name: 'Western', color: '#bd10e0', values: [3, 5, 7] },
-                { name: 'Literature', color: '#50e3c2', values: [9, 8, 11] }
-            ]
-        };
-
-        // Generate datasets dynamically based on the categories
-        const datasets = dynamicData.categories.map(category => ({
-            label: category.name,
-            data: category.values,
-            backgroundColor: category.color
-        }));
-
-        // Generate the legend dynamically
-        const legendContainer = document.getElementById('chart-legend');
-        dynamicData.categories.forEach(category => {
-            const legendItem = document.createElement('span');
-            legendItem.className = 'legend-item';
-            legendItem.innerHTML = `<span style="color: ${category.color}; font-weight: bold;">&#9679;</span> ${category.name}`;
-            legendContainer.appendChild(legendItem);
-        });
-
-        // Create the chart
-        const ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: dynamicData.labels, // X-axis years
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false // Legend is rendered outside
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: true
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+    }
+    // Generate ticks for the hAxis
+    const step = Math.max(1, Math.floor(maxTotalPeople / 10));
+    const length = Math.floor(maxTotalPeople / step);
+    const ticks = Array.from({ length }, (_, i) => (i + 1) * step);
+    var options = {
+        title: titleName,
+        width: 1200,
+        height: numDataPoints >= 20 ? 1800 : 200 + numDataPoints * 50,
+        isStacked: true,
+        legend: { position: 'top', maxLines: 4 },
+        bar: { groupWidth: numDataPoints >= 20 ? '95%' : '50%' },
+        chartArea: {
+            left: 280,
+            top: 80,
+            bottom: 50,
+            width: '90%',
+            height: '80%'
+        },
+        vAxis: {
+            title: '会社名',
+            textStyle: {
+                fontSize: numDataPoints >= 20 ? 10 : 14
             }
-        });
-    </script>
-</body>
-</html>
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixed Legend Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        #chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-        }
-        .chart-legend {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div id="chart-container">
-        <div class="chart-legend">
-            <strong>Categories: </strong>
-            <span style="color: #4a90e2;">Fantasy & Sci-Fi</span>,
-            <span style="color: #e94e77;">Romance</span>,
-            <span style="color: #f5a623;">Mystery/Crime</span>,
-            <span style="color: #7ed321;">General</span>,
-            <span style="color: #bd10e0;">Western</span>,
-            <span style="color: #50e3c2;">Literature</span>
-        </div>
-        <canvas id="myChart"></canvas>
-    </div>
-
-    <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['2010', '2020', '2030'], // X-axis years
-                datasets: [
-                    {
-                        label: 'Fantasy & Sci-Fi',
-                        data: [12, 19, 3],
-                        backgroundColor: '#4a90e2'
-                    },
-                    {
-                        label: 'Romance',
-                        data: [5, 15, 10],
-                        backgroundColor: '#e94e77'
-                    },
-                    {
-                        label: 'Mystery/Crime',
-                        data: [8, 10, 12],
-                        backgroundColor: '#f5a623'
-                    },
-                    {
-                        label: 'General',
-                        data: [6, 7, 8],
-                        backgroundColor: '#7ed321'
-                    },
-                    {
-                        label: 'Western',
-                        data: [3, 5, 7],
-                        backgroundColor: '#bd10e0'
-                    },
-                    {
-                        label: 'Literature',
-                        data: [9, 8, 11],
-                        backgroundColor: '#50e3c2'
-                    }
-                ]
+        },
+        hAxis: {
+            title: '人数',
+            viewWindow: {
+                min: 0,
+                max: maxTotalPeople // Set this to the maximum value you expect
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false // Hide the legend inside the chart
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: true
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+            ticks: ticks, // Use generated ticks
+            textStyle: {
+                fontSize: 12
             }
-        });
-    </script>
-</body>
-</html>
+        }
+    };
+    var chart = new google.visualization.BarChart(document.getElementById("chart_div"));
+    chart.draw(dataTable, options);<br><br> <div id="chart_div" class="bar-chart"></div>
 
-
-
-![image](https://github.com/user-attachments/assets/a67cb035-c242-4f95-b562-dbd3daec8f3d)
-
-I want to fixed display (Fantasy & Sci Fi
-Romance
-Mystery/Crime
-General
-Western
-Literature)
-not scrolling 
+reference design from image
+and add annotation that number of people
+上の凡例 is not defined constant cause of this value is change depend on other event
